@@ -13,9 +13,7 @@ class _SignInState extends State<SignIn> {
   String eMail='',password='';
   Widget build(BuildContext context) {
     final double height= MediaQuery.of(context).size.height;
-    final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
     return Scaffold(
-        key: _scaffoldKey,
         appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
@@ -37,13 +35,13 @@ class _SignInState extends State<SignIn> {
                       onChanged: (value) {
                         eMail = value;
                       },
-                      decoration: InputDecoration(
-                          labelText: "E-Mail"
-                      ),
-                      validator: (value){
-                        if (value!.isEmpty || !RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$').hasMatch(value!)){
+                      decoration: InputDecoration(labelText: "E-Mail"),
+                      validator: (value) {
+                        if (value!.isEmpty ||
+                            !RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$')
+                                .hasMatch(value!)) {
                           return "Enter correct E-Mail";
-                        }else{
+                        } else {
                           return null;
                         }
                       },

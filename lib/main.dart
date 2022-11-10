@@ -1,8 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_neumorphic/flutter_neumorphic.dart';
 import 'package:rent_app/sign_in.dart';
-import 'package:rent_app/sign_up.dart';
-void main(){
+
+import 'database.dart';
+
+
+
+void main() async{
   runApp(MyApp());
 }
 

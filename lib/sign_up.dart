@@ -1,5 +1,8 @@
 import 'package:flutter_neumorphic/flutter_neumorphic.dart';
+import 'package:rent_app/user.dart';
+import 'package:rent_app/userdao.dart';
 
+import 'database.dart';
 class SignUp extends StatefulWidget {
   @override
   _SignUpState createState() => _SignUpState();
@@ -112,16 +115,21 @@ class _SignUpState extends State<SignUp> {
         ),
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: () {
+        onPressed: () async {
           // Add your onPressed code here!
-          if(formKey.currentState !.validate()){
+          final database = await $FloorAppDatabase.databaseBuilder('app_database.db').build();
+          final userDao = database.userDao;
+          User tmp = User(fName: fName, lName: lName, eMail: eMail, password: password);
+          final result = await userDao.findUserByEmail(eMail).first;
+          if(formKey.currentState !.validate() && result?.eMail!=null){
+            await userDao.insertUser(tmp);
             ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Sign up success")));
           }else{
             ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Sign up failed")));
           }
         },
         backgroundColor: Color(0xFF363f93),
-        child: const Icon(Icons.add),
+        child: const Icon(Icons.arrow_circle_right_rounded),
       ),
     );
   }
