@@ -121,7 +121,7 @@ class _SignUpState extends State<SignUp> {
           final userDao = database.userDao;
           User tmp = User(fName: fName, lName: lName, eMail: eMail, password: password);
           final result = await userDao.findUserByEmail(eMail).first;
-          if(formKey.currentState !.validate() && result?.eMail!=null){
+          if(formKey.currentState !.validate() && result?.eMail==null){
             await userDao.insertUser(tmp);
             ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Sign up success")));
           }else{

@@ -94,17 +94,7 @@ class _SignInState extends State<SignIn> {
               )
           ),
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          // Add your onPressed code here!
-          Navigator.push(
-            context,
-            MaterialPageRoute(builder: (context) => SignUp()),
-          );
-        },
-        backgroundColor: Color(0xFF363f93),
-        child: const Icon(Icons.add),
-      ),
+
     );
   }
 }

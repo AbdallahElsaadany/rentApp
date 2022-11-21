@@ -136,20 +136,6 @@ class _$UserDao extends UserDao {
   }
 
   @override
-  Stream<User?> findUserById(int id) {
-    return _queryAdapter.queryStream('SELECT * FROM users WHERE id = ?1',
-        mapper: (Map<String, Object?> row) => User(
-            id: row['id'] as int?,
-            fName: row['fName'] as String,
-            lName: row['lName'] as String,
-            eMail: row['eMail'] as String,
-            password: row['password'] as String),
-        arguments: [id],
-        queryableName: 'users',
-        isView: false);
-  }
-
-  @override
   Stream<User?> findUserByEmail(String eMail) {
     return _queryAdapter.queryStream('SELECT * FROM users WHERE eMail = ?1',
         mapper: (Map<String, Object?> row) => User(

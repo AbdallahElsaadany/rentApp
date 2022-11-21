@@ -7,9 +7,6 @@ abstract class UserDao{
   @Query('SELECT * FROM users')
   Future<List<User>> findAllUsers();
 
-  @Query('SELECT * FROM users WHERE id = :id')
-  Stream<User?> findUserById(int id);
-
   @Query('SELECT * FROM users WHERE eMail = :eMail')
   Stream<User?> findUserByEmail(String eMail);
 
