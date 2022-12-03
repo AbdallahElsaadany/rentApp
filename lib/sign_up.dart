@@ -3,6 +3,7 @@ import 'package:rent_app/user.dart';
 import 'package:rent_app/userdao.dart';
 
 import 'database.dart';
+import 'main.dart';
 class SignUp extends StatefulWidget {
   @override
   _SignUpState createState() => _SignUpState();
@@ -117,7 +118,6 @@ class _SignUpState extends State<SignUp> {
       floatingActionButton: FloatingActionButton(
         onPressed: () async {
           // Add your onPressed code here!
-          final database = await $FloorAppDatabase.databaseBuilder('app_database.db').build();
           final userDao = database.userDao;
           User tmp = User(fName: fName, lName: lName, eMail: eMail, password: password);
           final result = await userDao.findUserByEmail(eMail).first;

@@ -1,5 +1,8 @@
 import 'package:flutter_neumorphic/flutter_neumorphic.dart';
+import 'package:rent_app/add_ad.dart';
 import 'package:rent_app/sign_up.dart';
+
+import 'main.dart';
 class SignIn extends StatefulWidget {
   const SignIn({Key? key}) : super(key: key);
 
@@ -65,17 +68,23 @@ class _SignInState extends State<SignIn> {
                     ),
                     SizedBox(height: height*0.05,),
                     Row(
-
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        Text("Sign up",style: TextStyle(fontSize: 22,color: Color(0xFF363f93)),),
+                        Text("Sign In",style: TextStyle(fontSize: 22,color: Color(0xFF363f93)),),
                         NeumorphicButton(
                           margin: const EdgeInsets.only(top: 12),
-                          onPressed: (){
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(builder: (context) => SignUp()),
-                            );
+                          onPressed: () async {
+                            final userDao = database.userDao;
+                            final result = await userDao.findUserByEmail(eMail).first;
+                            if(result?.eMail!=null && result?.password==password){
+                              ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Sign In success")));
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(builder: (context) => addAds()),
+                              );
+                            }else{
+                              ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("wrong E-mail or password")));
+                            }
                           },
                           style: NeumorphicStyle(
                               shape: NeumorphicShape.convex,
@@ -85,7 +94,6 @@ class _SignInState extends State<SignIn> {
                               lightSource: LightSource.topLeft,
                               color: Color(0xFF363f93)
                           ),
-
                         )
                       ],
                     ),
@@ -94,7 +102,17 @@ class _SignInState extends State<SignIn> {
               )
           ),
       ),
-
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          // Add your onPressed code here!
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => SignUp()),
+          );
+        },
+        backgroundColor: Color(0xFF363f93),
+        child: const Icon(Icons.arrow_circle_right_rounded),
+      ),
     );
   }
 }

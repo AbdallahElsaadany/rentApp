@@ -7,9 +7,12 @@ import 'databasebuilder.dart';
 
 import 'database.dart';
 
+late final database;
 
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  database = await $FloorAppDatabase.databaseBuilder('app_database.db').build();
 
-void main() {
   runApp(
     MaterialApp(
       home: MyApp(),
