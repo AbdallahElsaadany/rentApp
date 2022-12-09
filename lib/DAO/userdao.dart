@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:floor/floor.dart';
-import 'user.dart';
+import '../Classes/user.dart';
 
 @dao
 abstract class UserDao{

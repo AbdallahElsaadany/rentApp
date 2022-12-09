@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_neumorphic/flutter_neumorphic.dart';
-import 'package:rent_app/sign_in.dart';
-import 'package:rent_app/user.dart';
-import 'package:rent_app/userdao.dart';
+import 'package:rent_app/widgets/sign_in.dart';
+import 'package:rent_app/Classes/user.dart';
+import 'package:rent_app/DAO/userdao.dart';
 import 'databasebuilder.dart';
 
 import 'database.dart';

@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 
-import 'adclass.dart';
-import 'add_ad.dart';
-import 'addao.dart';
-import 'database.dart';
-import 'main.dart';
+import 'package:rent_app/Classes/adclass.dart';
+import 'package:rent_app/widgets/add_ad.dart';
+import 'package:rent_app/DAO/addao.dart';
+import 'package:rent_app/database.dart';
+import 'package:rent_app/main.dart';
 class adsHomePage extends StatefulWidget {
   const adsHomePage({Key? key}) : super(key: key);
 

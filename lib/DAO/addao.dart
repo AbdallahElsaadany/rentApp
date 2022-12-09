@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:floor/floor.dart';
-import 'package:rent_app/adclass.dart';
-import 'user.dart';
+import 'package:rent_app/Classes/adclass.dart';
+import '../Classes/user.dart';
 
 @dao
 abstract class AdDao{

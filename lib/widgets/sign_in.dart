@@ -1,9 +1,9 @@
 import 'package:flutter_neumorphic/flutter_neumorphic.dart';
-import 'package:rent_app/add_ad.dart';
-import 'package:rent_app/sign_up.dart';
-import 'ads_homepage.dart';
-import 'user_data.dart';
-import 'main.dart';
+import 'package:rent_app/widgets/add_ad.dart';
+import 'package:rent_app/widgets/sign_up.dart';
+import '../widgets/ads_homepage.dart';
+import '../user_data.dart';
+import '../main.dart';
 class SignIn extends StatefulWidget {
   const SignIn({Key? key}) : super(key: key);
 

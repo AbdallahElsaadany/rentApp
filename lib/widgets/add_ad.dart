@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:rent_app/sign_up.dart';
-import 'adclass.dart';
-import 'ads_homepage.dart';
-import 'main.dart';
-import 'user_data.dart';
+import 'package:rent_app/widgets/sign_up.dart';
+import '../Classes/adclass.dart';
+import '../widgets/ads_homepage.dart';
+import '../main.dart';
+import '../user_data.dart';
 class addAds extends StatefulWidget {
   const addAds({Key? key}) : super(key: key);
 

@@ -1,9 +1,9 @@
 import 'package:flutter_neumorphic/flutter_neumorphic.dart';
-import 'package:rent_app/user.dart';
-import 'package:rent_app/userdao.dart';
+import 'package:rent_app/Classes/user.dart';
+import 'package:rent_app/DAO/userdao.dart';
 
-import 'database.dart';
-import 'main.dart';
+import 'package:rent_app/database.dart';
+import 'package:rent_app/main.dart';
 class SignUp extends StatefulWidget {
   @override
   _SignUpState createState() => _SignUpState();
