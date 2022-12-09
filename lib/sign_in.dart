@@ -1,7 +1,8 @@
 import 'package:flutter_neumorphic/flutter_neumorphic.dart';
 import 'package:rent_app/add_ad.dart';
 import 'package:rent_app/sign_up.dart';
-
+import 'ads_homepage.dart';
+import 'user_data.dart';
 import 'main.dart';
 class SignIn extends StatefulWidget {
   const SignIn({Key? key}) : super(key: key);
@@ -77,10 +78,11 @@ class _SignInState extends State<SignIn> {
                             final userDao = database.userDao;
                             final result = await userDao.findUserByEmail(eMail).first;
                             if(result?.eMail!=null && result?.password==password){
+                              loggedUser = result;
                               ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Sign In success")));
                               Navigator.push(
                                 context,
-                                MaterialPageRoute(builder: (context) => addAds()),
+                                MaterialPageRoute(builder: (context) => adsHomePage()),
                               );
                             }else{
                               ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("wrong E-mail or password")));

@@ -63,6 +63,8 @@ class _$AppDatabase extends AppDatabase {
 
   UserDao? _userDaoInstance;
 
+  AdDao? _adDaoInstance;
+
   Future<sqflite.Database> open(
     String path,
     List<Migration> migrations, [
@@ -86,6 +88,8 @@ class _$AppDatabase extends AppDatabase {
       onCreate: (database, version) async {
         await database.execute(
             'CREATE TABLE IF NOT EXISTS `users` (`id` INTEGER PRIMARY KEY AUTOINCREMENT, `fName` TEXT NOT NULL, `lName` TEXT NOT NULL, `eMail` TEXT NOT NULL, `password` TEXT NOT NULL)');
+        await database.execute(
+            'CREATE TABLE IF NOT EXISTS `ads` (`id` INTEGER PRIMARY KEY AUTOINCREMENT, `user_id` INTEGER NOT NULL, `price` INTEGER NOT NULL, `link` TEXT NOT NULL, `desc` TEXT NOT NULL, `title` TEXT NOT NULL)');
 
         await callback?.onCreate?.call(database, version);
       },
@@ -96,6 +100,11 @@ class _$AppDatabase extends AppDatabase {
   @override
   UserDao get userDao {
     return _userDaoInstance ??= _$UserDao(database, changeListener);
+  }
+
+  @override
+  AdDao get adDao {
+    return _adDaoInstance ??= _$AdDao(database, changeListener);
   }
 }
 
@@ -152,5 +161,79 @@ class _$UserDao extends UserDao {
   @override
   Future<void> insertUser(User user) async {
     await _userInsertionAdapter.insert(user, OnConflictStrategy.abort);
+  }
+}
+
+class _$AdDao extends AdDao {
+  _$AdDao(
+    this.database,
+    this.changeListener,
+  )   : _queryAdapter = QueryAdapter(database, changeListener),
+        _adsInsertionAdapter = InsertionAdapter(
+            database,
+            'ads',
+            (Ads item) => <String, Object?>{
+                  'id': item.id,
+                  'user_id': item.user_id,
+                  'price': item.price,
+                  'link': item.link,
+                  'desc': item.desc,
+                  'title': item.title
+                },
+            changeListener);
+
+  final sqflite.DatabaseExecutor database;
+
+  final StreamController<String> changeListener;
+
+  final QueryAdapter _queryAdapter;
+
+  final InsertionAdapter<Ads> _adsInsertionAdapter;
+
+  @override
+  Future<List<Ads>> findAllAds() async {
+    return _queryAdapter.queryList('SELECT * FROM ads',
+        mapper: (Map<String, Object?> row) => Ads(
+            id: row['id'] as int?,
+            user_id: row['user_id'] as int,
+            link: row['link'] as String,
+            desc: row['desc'] as String,
+            title: row['title'] as String,
+            price: row['price'] as int));
+  }
+
+  @override
+  Stream<Ads?> findAdByTitle(String title) {
+    return _queryAdapter.queryStream('SELECT * FROM ads WHERE title = ?1',
+        mapper: (Map<String, Object?> row) => Ads(
+            id: row['id'] as int?,
+            user_id: row['user_id'] as int,
+            link: row['link'] as String,
+            desc: row['desc'] as String,
+            title: row['title'] as String,
+            price: row['price'] as int),
+        arguments: [title],
+        queryableName: 'ads',
+        isView: false);
+  }
+
+  @override
+  Stream<Ads?> findAdByUserId(int id) {
+    return _queryAdapter.queryStream('SELECT * FROM ads WHERE user_id = ?1',
+        mapper: (Map<String, Object?> row) => Ads(
+            id: row['id'] as int?,
+            user_id: row['user_id'] as int,
+            link: row['link'] as String,
+            desc: row['desc'] as String,
+            title: row['title'] as String,
+            price: row['price'] as int),
+        arguments: [id],
+        queryableName: 'ads',
+        isView: false);
+  }
+
+  @override
+  Future<void> insertAd(Ads ad) async {
+    await _adsInsertionAdapter.insert(ad, OnConflictStrategy.abort);
   }
 }

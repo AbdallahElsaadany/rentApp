@@ -1,54 +1,33 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_neumorphic/flutter_neumorphic.dart';
-import 'package:rent_app/sign_in.dart';
-import 'package:rent_app/user.dart';
-import 'package:rent_app/userdao.dart';
-import 'databasebuilder.dart';
 
+import 'adclass.dart';
+import 'add_ad.dart';
+import 'addao.dart';
 import 'database.dart';
+import 'main.dart';
+class adsHomePage extends StatefulWidget {
+  const adsHomePage({Key? key}) : super(key: key);
 
-late final database;
-
-void main() async {
-  WidgetsFlutterBinding.ensureInitialized();
-  database = await $FloorAppDatabase.databaseBuilder('app_database.db').build();
-
-  runApp(
-    MaterialApp(
-      home: MyApp(),
-    ),
-  );
-}
-
-class MyApp extends StatefulWidget{
   @override
-  State<MyApp> createState() => _MyAppState();
-
+  State<adsHomePage> createState() => _adsHomePageState();
 }
 
-class _MyAppState extends State<MyApp> {
-
-  late AppDatabase database;
-  @override
-  void initState() {
-    super.initState();
-    $FloorAppDatabase.databaseBuilder('app_database.db').build().then((value) async {
-      this.database = value;
-      setState(() {});
-    });
-}
-  Future<List<User>> retrieveUsers() async {
-    return await this.database.userDao.findAllUsers();
+class _adsHomePageState extends State<adsHomePage> {
+  Future<List<Ads>> retrieveAds() async {
+    return await database.adDao.findAllAds();
   }
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('data'),
+        title: Text('Ads'),
+        backgroundColor: Colors.transparent,
+        elevation: 0,
       ),
+      backgroundColor: Color(0xffdfe6e9),
       body: FutureBuilder(
-        future: this.retrieveUsers(),
-        builder: (BuildContext context, AsyncSnapshot<List<User>> snapshot) {
+        future: retrieveAds(),
+        builder: (BuildContext context, AsyncSnapshot<List<Ads>> snapshot) {
           if (snapshot.hasData) {
             return ListView.builder(
               itemCount: snapshot.data?.length,
@@ -71,8 +50,12 @@ class _MyAppState extends State<MyApp> {
                   child: Card(
                       child: ListTile(
                         contentPadding: EdgeInsets.all(8.0),
-                        title: Text(snapshot.data![index].fName),
-                        subtitle: Text(snapshot.data![index].eMail.toString()),
+                        title: Text(snapshot.data![index].title),
+                        subtitle: Text(snapshot.data![index].desc),
+                        trailing: Image.network(snapshot.data![index].link,width: 200,height: 100,
+                          loadingBuilder: (context,child,progress){
+                            return progress == null ? child : LinearProgressIndicator();
+                          },),
                       )),
                 );
               },
@@ -87,7 +70,7 @@ class _MyAppState extends State<MyApp> {
           // Add your onPressed code here!
           Navigator.push(
             context,
-            MaterialPageRoute(builder: (context) => SignIn()),
+            MaterialPageRoute(builder: (context) => addAds()),
           );
         },
         backgroundColor: Color(0xFF363f93),
@@ -96,4 +79,3 @@ class _MyAppState extends State<MyApp> {
     );
   }
 }
-

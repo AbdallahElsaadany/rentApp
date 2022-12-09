@@ -1,5 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:rent_app/sign_up.dart';
+import 'adclass.dart';
+import 'ads_homepage.dart';
+import 'main.dart';
+import 'user_data.dart';
 class addAds extends StatefulWidget {
   const addAds({Key? key}) : super(key: key);
 
@@ -9,8 +13,8 @@ class addAds extends StatefulWidget {
 
 class _addAdsState extends State<addAds> {
 
-  String description = '', photo_link = '', type = '',title = '';
-
+  String description = '', photo_link = '',title = '';
+  int price = 0;
 
   @override
   Widget build(BuildContext context) {
@@ -73,6 +77,18 @@ class _addAdsState extends State<addAds> {
                 SizedBox(
                   height: height * 0.05,
                 ),
+                TextFormField(
+                  keyboardType: TextInputType.number,
+                  maxLines: null,
+                  onChanged: (value) {
+                    var tmp = value;
+                    price = int.parse(tmp);
+                  },
+                  decoration: InputDecoration(labelText: "Price"),
+                ),
+                SizedBox(
+                  height: height * 0.05,
+                ),
                 SizedBox(
                   height: height * 0.05,
                 ),
@@ -82,11 +98,17 @@ class _addAdsState extends State<addAds> {
         ),
       ) ,
       floatingActionButton: FloatingActionButton(
-        onPressed: () {
+        onPressed: () async {
           // Add your onPressed code here!
+          var userID = loggedUser?.id?.toInt() ?? 0;
+          Ads tmp = Ads(title: title,link:photo_link,desc: description,user_id: userID,price: price);
+          print(tmp.link);
+          final adDao = database.adDao;
+          await adDao.insertAd(tmp);
+          ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("added successfully")));
           Navigator.push(
             context,
-            MaterialPageRoute(builder: (context) => SignUp()),
+            MaterialPageRoute(builder: (context) => adsHomePage()),
           );
         },
         backgroundColor: Color(0xFF363f93),

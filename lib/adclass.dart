@@ -4,6 +4,12 @@ import 'package:floor/floor.dart';
 class Ads{
   @PrimaryKey(autoGenerate: true)
   final int? id;
-  final String link,desc,type,title;
-  Ads( {this.id,required this.link, required this.desc, required this.type,required this.title});
+  final int user_id,price;
+  final String link,desc,title;
+  Ads({this.id,required this.user_id,required this.link, required this.desc, required this.title,required this.price});
+  @override
+  String toString() {
+    // TODO: implement toString
+    return super.toString();
+  }
 }
