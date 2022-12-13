@@ -89,7 +89,7 @@ class _$AppDatabase extends AppDatabase {
         await database.execute(
             'CREATE TABLE IF NOT EXISTS `users` (`id` INTEGER PRIMARY KEY AUTOINCREMENT, `fName` TEXT NOT NULL, `lName` TEXT NOT NULL, `eMail` TEXT NOT NULL, `password` TEXT NOT NULL)');
         await database.execute(
-            'CREATE TABLE IF NOT EXISTS `ads` (`id` INTEGER PRIMARY KEY AUTOINCREMENT, `user_id` INTEGER NOT NULL, `price` INTEGER NOT NULL, `link` TEXT NOT NULL, `desc` TEXT NOT NULL, `title` TEXT NOT NULL)');
+            'CREATE TABLE IF NOT EXISTS `ads` (`id` INTEGER PRIMARY KEY AUTOINCREMENT, `user_id` INTEGER NOT NULL, `price` INTEGER NOT NULL, `quantity` INTEGER NOT NULL, `link` TEXT NOT NULL, `desc` TEXT NOT NULL, `title` TEXT NOT NULL, `type` TEXT NOT NULL)');
 
         await callback?.onCreate?.call(database, version);
       },
@@ -168,7 +168,7 @@ class _$AdDao extends AdDao {
   _$AdDao(
     this.database,
     this.changeListener,
-  )   : _queryAdapter = QueryAdapter(database, changeListener),
+  )   : _queryAdapter = QueryAdapter(database),
         _adsInsertionAdapter = InsertionAdapter(
             database,
             'ads',
@@ -176,11 +176,12 @@ class _$AdDao extends AdDao {
                   'id': item.id,
                   'user_id': item.user_id,
                   'price': item.price,
+                  'quantity': item.quantity,
                   'link': item.link,
                   'desc': item.desc,
-                  'title': item.title
-                },
-            changeListener);
+                  'title': item.title,
+                  'type': item.type
+                });
 
   final sqflite.DatabaseExecutor database;
 
@@ -199,37 +200,39 @@ class _$AdDao extends AdDao {
             link: row['link'] as String,
             desc: row['desc'] as String,
             title: row['title'] as String,
-            price: row['price'] as int));
+            price: row['price'] as int,
+            quantity: row['quantity'] as int,
+            type: row['type'] as String));
   }
 
   @override
-  Stream<Ads?> findAdByTitle(String title) {
-    return _queryAdapter.queryStream('SELECT * FROM ads WHERE title = ?1',
+  Future<List<Ads>> findAdByTitle(String title) async {
+    return _queryAdapter.queryList('SELECT * FROM ads WHERE title = ?1',
         mapper: (Map<String, Object?> row) => Ads(
             id: row['id'] as int?,
             user_id: row['user_id'] as int,
             link: row['link'] as String,
             desc: row['desc'] as String,
             title: row['title'] as String,
-            price: row['price'] as int),
-        arguments: [title],
-        queryableName: 'ads',
-        isView: false);
+            price: row['price'] as int,
+            quantity: row['quantity'] as int,
+            type: row['type'] as String),
+        arguments: [title]);
   }
 
   @override
-  Stream<Ads?> findAdByUserId(int id) {
-    return _queryAdapter.queryStream('SELECT * FROM ads WHERE user_id = ?1',
+  Future<List<Ads?>> findAdByUserId(int id) async {
+    return _queryAdapter.queryList('SELECT * FROM ads WHERE user_id = ?1',
         mapper: (Map<String, Object?> row) => Ads(
             id: row['id'] as int?,
             user_id: row['user_id'] as int,
             link: row['link'] as String,
             desc: row['desc'] as String,
             title: row['title'] as String,
-            price: row['price'] as int),
-        arguments: [id],
-        queryableName: 'ads',
-        isView: false);
+            price: row['price'] as int,
+            quantity: row['quantity'] as int,
+            type: row['type'] as String),
+        arguments: [id]);
   }
 
   @override

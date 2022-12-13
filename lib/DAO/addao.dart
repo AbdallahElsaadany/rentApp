@@ -9,10 +9,10 @@ abstract class AdDao{
   Future<List<Ads>> findAllAds();
 
   @Query('SELECT * FROM ads WHERE title = :title')
-  Stream<Ads?> findAdByTitle(String title);
+  Future<List<Ads>> findAdByTitle(String title);
 
   @Query('SELECT * FROM ads WHERE user_id = :id')
-  Stream<Ads?> findAdByUserId(int id);
+  Future<List<Ads?>> findAdByUserId(int id);
 
   @insert
   Future<void> insertAd(Ads ad);

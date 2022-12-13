@@ -13,8 +13,14 @@ class addAds extends StatefulWidget {
 
 class _addAdsState extends State<addAds> {
 
-  String description = '', photo_link = '',title = '';
+  String description = '', photo_link = '',title = '',location = '';
   int price = 0;
+  List<String> room_types = [
+    'Single',
+    'Double'
+  ];
+  String dropdownvalue = 'Single';
+  int number_rooms = 0;
 
   @override
   Widget build(BuildContext context) {
@@ -89,6 +95,50 @@ class _addAdsState extends State<addAds> {
                 SizedBox(
                   height: height * 0.05,
                 ),
+                TextFormField(
+                  keyboardType: TextInputType.number,
+                  maxLines: null,
+                  onChanged: (value) {
+                    var tmp = value;
+                    number_rooms = int.parse(tmp);
+                  },
+                  decoration: InputDecoration(labelText: "Number of rooms"),
+                ),
+                SizedBox(
+                  height: height * 0.05,
+                ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text("Room type",style: TextStyle(fontSize: 22,color: Color(0xFF363f93)),),
+                    DropdownButton(
+
+                      // Initial Value
+                      value: dropdownvalue,
+
+                      // Down Arrow Icon
+                      icon: const Icon(Icons.keyboard_arrow_down),
+
+                      // Array list of items
+                      items: room_types.map((String items) {
+                        return DropdownMenuItem(
+                          value: items,
+                          child: Text(items),
+                        );
+                      }).toList(),
+                      // After selecting the desired option,it will
+                      // change button value to selected value
+                      onChanged: (String? newValue) {
+                        setState(() {
+                          dropdownvalue = newValue!;
+                        });
+                      },
+                    ),
+                  ],
+                ),
+                SizedBox(
+                  height: height * 0.05,
+                ),
                 SizedBox(
                   height: height * 0.05,
                 ),
@@ -101,7 +151,7 @@ class _addAdsState extends State<addAds> {
         onPressed: () async {
           // Add your onPressed code here!
           var userID = loggedUser?.id?.toInt() ?? 0;
-          Ads tmp = Ads(title: title,link:photo_link,desc: description,user_id: userID,price: price);
+          Ads tmp = Ads(title: title,link:photo_link,desc: description,user_id: userID ,price: price,type: dropdownvalue,quantity: number_rooms);
           print(tmp.link);
           final adDao = database.adDao;
           await adDao.insertAd(tmp);
