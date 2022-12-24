@@ -6,9 +6,12 @@ import 'package:rent_app/widgets/add_ad.dart';
 import 'package:rent_app/DAO/addao.dart';
 import 'package:rent_app/database.dart';
 import 'package:rent_app/main.dart';
+import 'package:rent_app/widgets/adviewer.dart';
+
+import 'editad.dart';
+import 'myadviewer.dart';
 class adsHomePage extends StatefulWidget {
   const adsHomePage({Key? key}) : super(key: key);
-
   @override
   State<adsHomePage> createState() => _adsHomePageState();
 }
@@ -66,13 +69,9 @@ class _adsHomePageState extends State<adsHomePage> {
             ),
           ),
         ),
-      appBar: AppBar(
-        title: Text('Ads'),
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-      ),
       backgroundColor: Color(0xffdfe6e9),
       body: Stack(
+
         children: [
           Offstage(
             offstage: selectedTap != 0,
@@ -83,41 +82,37 @@ class _adsHomePageState extends State<adsHomePage> {
                   return ListView.builder(
                     itemCount: snapshot.data?.length,
                     itemBuilder: (BuildContext context, int index) {
-                      return Dismissible(
-                        direction: DismissDirection.endToStart,
-                        background: Container(
-                          color: Colors.red,
-                          alignment: Alignment.centerRight,
-                          padding: EdgeInsets.symmetric(horizontal: 10.0),
-                          child: Icon(Icons.delete_forever),
-                        ),
-
-                        key: ValueKey<int>(snapshot.data![index].id!),
-                        onDismissed: (DismissDirection direction) async {
-                          setState(() {
-                            snapshot.data!.remove(snapshot.data![index]);
-                          });
-                        },
-                        child: Card(
-                            child: SizedBox(
-                              width: MediaQuery.of(context).size.width,
-                              child: Row(
-                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                children: [
-                                  Column(
-                                    children: [
-                                      Text(snapshot.data![index].title),
-                                      Text(snapshot.data![index].desc)
-                                    ],
-                                  ),
-                                  Image.network(snapshot.data![index].link,width: 200,height: 100,
-                                    loadingBuilder: (context,child,progress){
-                                      return progress == null ? child : LinearProgressIndicator();
-                                    },)
-                                ],
+                      return GestureDetector(
+                          onTap: () => Navigator.push(
+                            context,
+                            MaterialPageRoute(builder: (context) => adViewer(snapshot.data![index]!.id!)),
+                          ),
+                          child: Card(
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(15.0),
                               ),
-                            )),
-                      );
+                              color: Colors.grey,
+                              elevation: 10,
+                              child: SizedBox(
+                                width: MediaQuery.of(context).size.width,
+                                child: Row(
+                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    Column(
+                                      children: [
+                                        Text("      " +snapshot.data![index].title, style: TextStyle(fontSize: 22)),
+                                      ],
+                                    ),
+                                    Image.network(snapshot.data![index].link,width: 200,height: 100,
+                                      loadingBuilder: (context,child,progress){
+                                        return progress == null ? child : LinearProgressIndicator();
+                                      },
+                                    )
+                                  ],
+                                ),
+                              )
+                          ),
+                        );
                     },
                   );
                 } else {
@@ -134,41 +129,38 @@ class _adsHomePageState extends State<adsHomePage> {
                   return ListView.builder(
                     itemCount: snapshot.data?.length,
                     itemBuilder: (BuildContext context, int index) {
-                      return Dismissible(
-                        direction: DismissDirection.endToStart,
-                        background: Container(
-                          color: Colors.red,
-                          alignment: Alignment.centerRight,
-                          padding: EdgeInsets.symmetric(horizontal: 10.0),
-                          child: Icon(Icons.delete_forever),
-                        ),
-
-                        key: ValueKey<int>(snapshot.data![index]!.id!),
-                        onDismissed: (DismissDirection direction) async {
-                          setState(() {
-                            snapshot.data!.remove(snapshot.data![index]);
-                          });
-                        },
-                        child: Card(
-                            child: SizedBox(
-                              width: MediaQuery.of(context).size.width,
-                              child: Row(
-                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                children: [
-                                  Column(
-                                    children: [
-                                      Text(snapshot.data![index]!.title),
-                                      Text(snapshot.data![index]!.desc)
-                                    ],
-                                  ),
-                                  Image.network(snapshot.data![index]!.link,width: 200,height: 100,
-                                    loadingBuilder: (context,child,progress){
-                                      return progress == null ? child : LinearProgressIndicator();
-                                    },)
-                                ],
+                        return GestureDetector(
+                          onTap: () => Navigator.push(
+                            context,
+                            MaterialPageRoute(builder: (context) => myAdViewer(snapshot.data![index]!.id!)),
+                          ),
+                          child: Card(
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(15.0),
                               ),
-                            )),
-                      );
+                              color: Colors.grey,
+                              elevation: 10,
+                              child: SizedBox(
+                                width: MediaQuery.of(context).size.width,
+                                child: Row(
+                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    Column(
+                                      children: [
+                                        Text("      " +snapshot.data![index]!.title, style: TextStyle(fontSize: 22)),
+                                      ],
+                                    ),
+                                    Image.network(snapshot.data![index]!.link,width: 200,height: 100,
+                                      loadingBuilder: (context,child,progress){
+                                        return progress == null ? child : LinearProgressIndicator();
+                                      },
+                                    )
+                                  ],
+                                ),
+                              )
+                          ),
+                        );
+
                     },
                   );
                 } else {

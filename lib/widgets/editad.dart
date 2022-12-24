@@ -1,29 +1,67 @@
 import 'package:flutter/material.dart';
-import 'package:rent_app/widgets/sign_up.dart';
+
 import '../Classes/adclass.dart';
-import '../widgets/ads_homepage.dart';
 import '../main.dart';
 import '../user_data.dart';
-class addAds extends StatefulWidget {
-  const addAds({Key? key}) : super(key: key);
-
+import 'ads_homepage.dart';
+import 'adviewer.dart';
+import 'myadviewer.dart';
+class EditPage extends StatefulWidget {
+  final int id;
+  const EditPage(this.id,{Key? key}) : super(key: key);
   @override
-  State<addAds> createState() => _addAdsState();
+  State<EditPage> createState() => _EditPageState();
 }
 
-class _addAdsState extends State<addAds> {
-
-  String description = '', photo_link = '',title = '',location = '',dropdownvalue = 'Single';
-  int price = 0,phone_number = 0,number_rooms = 0;
+class _EditPageState extends State<EditPage> {
+  String description = '', photo_link = '',title = '',location = '',type = 'Single';
+  int price = 0 , number_rooms = 0,phone_number = 0;
   List<String> room_types = [
     'Single',
     'Double'
   ];
+  TextEditingController titleController = TextEditingController();
+  TextEditingController descriptionController = TextEditingController();
+  TextEditingController photo_linkController = TextEditingController();
+  TextEditingController locationController = TextEditingController();
+  TextEditingController typeController = TextEditingController();
+  TextEditingController priceController = TextEditingController();
+  TextEditingController number_roomsController = TextEditingController();
+  TextEditingController phone_numberController = TextEditingController();
+
+  late final adDao;
+  @override
+  void initState() {
+    adDao = database.adDao;
+    getAd();
+    super.initState();
+  }
+
+  getAd() async{
+    var result = await adDao.findAdById(widget.id).first;
+    description = result?.desc;
+    descriptionController.text = description;
+    photo_link = result?.link;
+    photo_linkController.text = photo_link;
+    title = result?.title;
+    titleController.text = title;
+    location =result?.location;
+    locationController.text = location;
+    type = result?.type;
+    typeController.text = type;
+    price = result?.price;
+    priceController.text = price.toString();
+    number_rooms = result?.number_of_rooms;
+    number_roomsController.text = number_rooms.toString();
+    phone_number = result?.phone_number;
+    phone_numberController.text = phone_number.toString();
+    setState(() {});
+  }
 
   @override
   Widget build(BuildContext context) {
-    final double height = MediaQuery.of(context).size.height;
 
+    final double height = MediaQuery.of(context).size.height;
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Colors.transparent,
@@ -46,6 +84,7 @@ class _addAdsState extends State<addAds> {
                   height: height * 0.05,
                 ),
                 TextFormField(
+                  controller: titleController,
                   onChanged: (value) {
                     title = value;
                   },
@@ -55,6 +94,19 @@ class _addAdsState extends State<addAds> {
                   height: height * 0.05,
                 ),
                 TextFormField(
+                  controller: locationController,
+                  onChanged: (value) {
+                    setState(() {
+                      location = value;
+                    });
+                  },
+                  decoration: InputDecoration(labelText: "location"),
+                ),
+                SizedBox(
+                  height: height * 0.05,
+                ),
+                TextFormField(
+                  controller: photo_linkController,
                   onChanged: (value) {
                     setState(() {
                       photo_link = value;
@@ -63,25 +115,15 @@ class _addAdsState extends State<addAds> {
                   decoration: InputDecoration(labelText: "Photo link "),
                 ),
                 if (photo_link != '')
-                Image.network(photo_link,width: 200,height: 100,
-                loadingBuilder: (context,child,progress){
-                  return progress == null ? child : LinearProgressIndicator();
-                },),
+                  Image.network(photo_link,width: 200,height: 100,
+                    loadingBuilder: (context,child,progress){
+                      return progress == null ? child : LinearProgressIndicator();
+                    },),
                 SizedBox(
                   height: height * 0.05,
                 ),
                 TextFormField(
-                  keyboardType: TextInputType.multiline,
-                  maxLines: null,
-                  onChanged: (value) {
-                    location = value;
-                  },
-                  decoration: InputDecoration(labelText: "Location"),
-                ),
-                SizedBox(
-                  height: height * 0.05,
-                ),
-                TextFormField(
+                  controller: descriptionController,
                   keyboardType: TextInputType.multiline,
                   maxLines: null,
                   onChanged: (value) {
@@ -93,6 +135,7 @@ class _addAdsState extends State<addAds> {
                   height: height * 0.05,
                 ),
                 TextFormField(
+                  controller: priceController,
                   keyboardType: TextInputType.number,
                   maxLines: null,
                   onChanged: (value) {
@@ -105,23 +148,23 @@ class _addAdsState extends State<addAds> {
                   height: height * 0.05,
                 ),
                 TextFormField(
+                  controller: phone_numberController,
                   keyboardType: TextInputType.number,
                   maxLines: null,
                   onChanged: (value) {
-                    var tmp = value;
-                    phone_number = int.parse(tmp);
+                    phone_number = int.parse(value);
                   },
-                  decoration: InputDecoration(labelText: "phone number"),
+                  decoration: InputDecoration(labelText: "Phone number"),
                 ),
                 SizedBox(
                   height: height * 0.05,
                 ),
                 TextFormField(
+                  controller: number_roomsController,
                   keyboardType: TextInputType.number,
                   maxLines: null,
                   onChanged: (value) {
-                    var tmp = value;
-                    number_rooms = int.parse(tmp);
+                    number_rooms = int.parse(value);
                   },
                   decoration: InputDecoration(labelText: "Number of rooms"),
                 ),
@@ -133,25 +176,17 @@ class _addAdsState extends State<addAds> {
                   children: [
                     Text("Room type",style: TextStyle(fontSize: 22,color: Color(0xFF363f93)),),
                     DropdownButton(
-
-                      // Initial Value
-                      value: dropdownvalue,
-
-                      // Down Arrow Icon
+                      value: type,
                       icon: const Icon(Icons.keyboard_arrow_down),
-
-                      // Array list of items
                       items: room_types.map((String items) {
                         return DropdownMenuItem(
                           value: items,
                           child: Text(items),
                         );
                       }).toList(),
-                      // After selecting the desired option,it will
-                      // change button value to selected value
                       onChanged: (String? newValue) {
                         setState(() {
-                          dropdownvalue = newValue!;
+                          type = newValue!;
                         });
                       },
                     ),
@@ -170,16 +205,13 @@ class _addAdsState extends State<addAds> {
       ) ,
       floatingActionButton: FloatingActionButton(
         onPressed: () async {
-          // Add your onPressed code here!
-          var userID = loggedUser?.id?.toInt() ?? 0;
-          Ads tmp = Ads(title: title,link:photo_link,location: location,desc: description,user_id: userID ,price: price,type: dropdownvalue,number_of_rooms: number_rooms ,phone_number: phone_number);
-          print(tmp.link);
-          final adDao = database.adDao;
-          await adDao.insertAd(tmp);
-          ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("added successfully")));
+          await adDao.updateAd(widget.id,photo_link,description,title,number_rooms,price,type,location,phone_number);
+          ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("edit successfully")));
+          Navigator.pop(context);
+          Navigator.pop(context);
           Navigator.push(
             context,
-            MaterialPageRoute(builder: (context) => adsHomePage()),
+            MaterialPageRoute(builder: (context) => myAdViewer(widget.id)),
           );
         },
         backgroundColor: Color(0xFF363f93),

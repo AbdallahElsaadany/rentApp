@@ -80,7 +80,7 @@ class _SignInState extends State<SignIn> {
                             if(result?.eMail!=null && result?.password==password){
                               loggedUser = result;
                               ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Sign In success")));
-                              Navigator.push(
+                              Navigator.pushReplacement(
                                 context,
                                 MaterialPageRoute(builder: (context) => adsHomePage()),
                               );

@@ -89,7 +89,7 @@ class _$AppDatabase extends AppDatabase {
         await database.execute(
             'CREATE TABLE IF NOT EXISTS `users` (`id` INTEGER PRIMARY KEY AUTOINCREMENT, `fName` TEXT NOT NULL, `lName` TEXT NOT NULL, `eMail` TEXT NOT NULL, `password` TEXT NOT NULL)');
         await database.execute(
-            'CREATE TABLE IF NOT EXISTS `ads` (`id` INTEGER PRIMARY KEY AUTOINCREMENT, `user_id` INTEGER NOT NULL, `price` INTEGER NOT NULL, `quantity` INTEGER NOT NULL, `link` TEXT NOT NULL, `desc` TEXT NOT NULL, `title` TEXT NOT NULL, `type` TEXT NOT NULL)');
+            'CREATE TABLE IF NOT EXISTS `ads` (`id` INTEGER PRIMARY KEY AUTOINCREMENT, `owner_id` INTEGER NOT NULL, `price` INTEGER NOT NULL, `number_of_rooms` INTEGER NOT NULL, `phone_number` INTEGER NOT NULL, `link` TEXT NOT NULL, `desc` TEXT NOT NULL, `title` TEXT NOT NULL, `type` TEXT NOT NULL, `location` TEXT NOT NULL, FOREIGN KEY (`owner_id`) REFERENCES `users` (`id`) ON UPDATE NO ACTION ON DELETE NO ACTION)');
 
         await callback?.onCreate?.call(database, version);
       },
@@ -168,20 +168,23 @@ class _$AdDao extends AdDao {
   _$AdDao(
     this.database,
     this.changeListener,
-  )   : _queryAdapter = QueryAdapter(database),
+  )   : _queryAdapter = QueryAdapter(database, changeListener),
         _adsInsertionAdapter = InsertionAdapter(
             database,
             'ads',
             (Ads item) => <String, Object?>{
                   'id': item.id,
-                  'user_id': item.user_id,
+                  'owner_id': item.user_id,
                   'price': item.price,
-                  'quantity': item.quantity,
+                  'number_of_rooms': item.number_of_rooms,
+                  'phone_number': item.phone_number,
                   'link': item.link,
                   'desc': item.desc,
                   'title': item.title,
-                  'type': item.type
-                });
+                  'type': item.type,
+                  'location': item.location
+                },
+            changeListener);
 
   final sqflite.DatabaseExecutor database;
 
@@ -196,13 +199,15 @@ class _$AdDao extends AdDao {
     return _queryAdapter.queryList('SELECT * FROM ads',
         mapper: (Map<String, Object?> row) => Ads(
             id: row['id'] as int?,
-            user_id: row['user_id'] as int,
+            user_id: row['owner_id'] as int,
             link: row['link'] as String,
             desc: row['desc'] as String,
             title: row['title'] as String,
             price: row['price'] as int,
-            quantity: row['quantity'] as int,
-            type: row['type'] as String));
+            number_of_rooms: row['number_of_rooms'] as int,
+            type: row['type'] as String,
+            location: row['location'] as String,
+            phone_number: row['phone_number'] as int));
   }
 
   @override
@@ -210,29 +215,79 @@ class _$AdDao extends AdDao {
     return _queryAdapter.queryList('SELECT * FROM ads WHERE title = ?1',
         mapper: (Map<String, Object?> row) => Ads(
             id: row['id'] as int?,
-            user_id: row['user_id'] as int,
+            user_id: row['owner_id'] as int,
             link: row['link'] as String,
             desc: row['desc'] as String,
             title: row['title'] as String,
             price: row['price'] as int,
-            quantity: row['quantity'] as int,
-            type: row['type'] as String),
+            number_of_rooms: row['number_of_rooms'] as int,
+            type: row['type'] as String,
+            location: row['location'] as String,
+            phone_number: row['phone_number'] as int),
         arguments: [title]);
   }
 
   @override
   Future<List<Ads?>> findAdByUserId(int id) async {
-    return _queryAdapter.queryList('SELECT * FROM ads WHERE user_id = ?1',
+    return _queryAdapter.queryList('SELECT * FROM ads WHERE owner_id = ?1',
         mapper: (Map<String, Object?> row) => Ads(
             id: row['id'] as int?,
-            user_id: row['user_id'] as int,
+            user_id: row['owner_id'] as int,
             link: row['link'] as String,
             desc: row['desc'] as String,
             title: row['title'] as String,
             price: row['price'] as int,
-            quantity: row['quantity'] as int,
-            type: row['type'] as String),
+            number_of_rooms: row['number_of_rooms'] as int,
+            type: row['type'] as String,
+            location: row['location'] as String,
+            phone_number: row['phone_number'] as int),
         arguments: [id]);
+  }
+
+  @override
+  Stream<Ads?> findAdById(int id) {
+    return _queryAdapter.queryStream('SELECT * FROM ads WHERE id = ?1',
+        mapper: (Map<String, Object?> row) => Ads(
+            id: row['id'] as int?,
+            user_id: row['owner_id'] as int,
+            link: row['link'] as String,
+            desc: row['desc'] as String,
+            title: row['title'] as String,
+            price: row['price'] as int,
+            number_of_rooms: row['number_of_rooms'] as int,
+            type: row['type'] as String,
+            location: row['location'] as String,
+            phone_number: row['phone_number'] as int),
+        arguments: [id],
+        queryableName: 'ads',
+        isView: false);
+  }
+
+  @override
+  Future<void> updateAd(
+    int id,
+    String link,
+    String desc,
+    String title,
+    int number_of_rooms,
+    int price,
+    String type,
+    String location,
+    int phone_number,
+  ) async {
+    await _queryAdapter.queryNoReturn(
+        'UPDATE ads SET link = ?2, location = ?8,desc = ?3,title = ?4,number_of_rooms = ?5,price = ?6,type = ?7,phone_number =?9 WHERE id = ?1',
+        arguments: [
+          id,
+          link,
+          desc,
+          title,
+          number_of_rooms,
+          price,
+          type,
+          location,
+          phone_number
+        ]);
   }
 
   @override
