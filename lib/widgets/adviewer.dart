@@ -22,7 +22,7 @@ class _adViewerState extends State<adViewer> {
     'Single',
     'Double'
   ];
-
+  List<int> numbers = [];
   late final adDao;
   @override
   void initState() {
@@ -46,7 +46,9 @@ class _adViewerState extends State<adViewer> {
 
   @override
   Widget build(BuildContext context) {
-
+    for (var i = 1; i <= number_rooms; i++) {
+      numbers.add(i);
+    }
     final double height = MediaQuery.of(context).size.height;
     return Scaffold(
       appBar: AppBar(
@@ -138,7 +140,7 @@ class _adViewerState extends State<adViewer> {
           onTap: () {
             Navigator.push(
               context,
-              MaterialPageRoute(builder: (context) => booking_page(widget.id)),
+              MaterialPageRoute(builder: (context) => booking_page(widget.id,numbers)),
             );
           },
           child: const SizedBox(
@@ -169,92 +171,3 @@ class _adViewerState extends State<adViewer> {
   }
 }
 
-
-showAlertDialog(BuildContext context,int number_rooms,int id) {
-  List<int> numbers = [];
-  late int dropdownvalue;
-  for (var i = 1; i <= number_rooms; i++) {
-    numbers.add(i);
-  }
-  try {
-    dropdownvalue = numbers[0];
-  } catch (e) {
-    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("no rooms available")));
-    return;
-  }
-  // set up the buttons
-  Widget cancelButton = TextButton(
-    child: Text("Cancel"),
-    onPressed:  () {
-      Navigator.pop(context);
-    },
-  );
-  Widget continueButton = TextButton(
-    child: Text("Continue"),
-    onPressed:  () {
-      Navigator.push(
-        context,
-        MaterialPageRoute(builder: (context) => payment(id:id,booked_number:dropdownvalue)),
-      );
-    },
-  );
-
-  // set up the AlertDialog
-  AlertDialog alert = AlertDialog(
-    title: Text("Choose number of rooms"),
-    content: StatefulBuilder(
-      builder: (context,setState) {
-        return Container(
-          child: Column(
-            children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text("number",style: TextStyle(fontSize: 22,color: Color(0xFF363f93)),),
-                  DropdownButton(
-
-                    // Initial Value
-                    value: dropdownvalue,
-
-                    // Down Arrow Icon
-                    icon: const Icon(Icons.keyboard_arrow_down),
-
-                    // Array list of items
-                    items: numbers.map((int items) {
-                      return DropdownMenuItem(
-                        value: items,
-                        child: Text(items.toString()),
-                      );
-                    }).toList(),
-                    // After selecting the desired option,it will
-                    // change button value to selected value
-                    onChanged: (int? newValue) {
-                      setState(() {
-                        dropdownvalue = newValue!;
-                      });
-                    },
-                  ),
-                ],
-              ),
-              Expanded(
-                child: SfDateRangePicker(),
-              )
-            ],
-          ),
-        );
-      }
-    ),
-    actions: [
-      cancelButton,
-      continueButton,
-    ],
-  );
-
-  // show the dialog
-  showDialog(
-    context: context,
-    builder: (BuildContext context) {
-      return alert;
-    },
-  );
-}

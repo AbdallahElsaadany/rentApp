@@ -65,6 +65,10 @@ class _$AppDatabase extends AppDatabase {
 
   AdDao? _adDaoInstance;
 
+  BookDao? _bookDaoInstance;
+
+  FavoriteDao? _favoritDaoInstance;
+
   Future<sqflite.Database> open(
     String path,
     List<Migration> migrations, [
@@ -90,6 +94,10 @@ class _$AppDatabase extends AppDatabase {
             'CREATE TABLE IF NOT EXISTS `users` (`id` INTEGER PRIMARY KEY AUTOINCREMENT, `fName` TEXT NOT NULL, `lName` TEXT NOT NULL, `eMail` TEXT NOT NULL, `password` TEXT NOT NULL)');
         await database.execute(
             'CREATE TABLE IF NOT EXISTS `ads` (`id` INTEGER PRIMARY KEY AUTOINCREMENT, `owner_id` INTEGER NOT NULL, `price` INTEGER NOT NULL, `number_of_rooms` INTEGER NOT NULL, `phone_number` INTEGER NOT NULL, `link` TEXT NOT NULL, `desc` TEXT NOT NULL, `title` TEXT NOT NULL, `type` TEXT NOT NULL, `location` TEXT NOT NULL, FOREIGN KEY (`owner_id`) REFERENCES `users` (`id`) ON UPDATE NO ACTION ON DELETE NO ACTION)');
+        await database.execute(
+            'CREATE TABLE IF NOT EXISTS `book` (`id` INTEGER PRIMARY KEY AUTOINCREMENT, `start_date` TEXT NOT NULL, `end_date` TEXT NOT NULL, `price` REAL NOT NULL, `customer_id` INTEGER NOT NULL, `Ad_id` INTEGER NOT NULL, FOREIGN KEY (`Ad_id`) REFERENCES `ads` (`id`) ON UPDATE NO ACTION ON DELETE NO ACTION, FOREIGN KEY (`customer_id`) REFERENCES `users` (`id`) ON UPDATE NO ACTION ON DELETE NO ACTION)');
+        await database.execute(
+            'CREATE TABLE IF NOT EXISTS `favorites` (`id` INTEGER PRIMARY KEY AUTOINCREMENT, `customer_id` INTEGER NOT NULL, `Ad_id` INTEGER NOT NULL, FOREIGN KEY (`Ad_id`) REFERENCES `ads` (`id`) ON UPDATE NO ACTION ON DELETE NO ACTION, FOREIGN KEY (`customer_id`) REFERENCES `users` (`id`) ON UPDATE NO ACTION ON DELETE NO ACTION)');
 
         await callback?.onCreate?.call(database, version);
       },
@@ -105,6 +113,16 @@ class _$AppDatabase extends AppDatabase {
   @override
   AdDao get adDao {
     return _adDaoInstance ??= _$AdDao(database, changeListener);
+  }
+
+  @override
+  BookDao get bookDao {
+    return _bookDaoInstance ??= _$BookDao(database, changeListener);
+  }
+
+  @override
+  FavoriteDao get favoritDao {
+    return _favoritDaoInstance ??= _$FavoriteDao(database, changeListener);
   }
 }
 
@@ -293,5 +311,186 @@ class _$AdDao extends AdDao {
   @override
   Future<void> insertAd(Ads ad) async {
     await _adsInsertionAdapter.insert(ad, OnConflictStrategy.abort);
+  }
+}
+
+class _$BookDao extends BookDao {
+  _$BookDao(
+    this.database,
+    this.changeListener,
+  )   : _queryAdapter = QueryAdapter(database, changeListener),
+        _bookInsertionAdapter = InsertionAdapter(
+            database,
+            'book',
+            (Book item) => <String, Object?>{
+                  'id': item.id,
+                  'start_date': item.start_date,
+                  'end_date': item.end_date,
+                  'price': item.price,
+                  'customer_id': item.user_id,
+                  'Ad_id': item.ad_id
+                },
+            changeListener);
+
+  final sqflite.DatabaseExecutor database;
+
+  final StreamController<String> changeListener;
+
+  final QueryAdapter _queryAdapter;
+
+  final InsertionAdapter<Book> _bookInsertionAdapter;
+
+  @override
+  Future<List<Book>> findAllBooks() async {
+    return _queryAdapter.queryList('SELECT * FROM book',
+        mapper: (Map<String, Object?> row) => Book(
+            id: row['id'] as int?,
+            start_date: row['start_date'] as String,
+            end_date: row['end_date'] as String,
+            user_id: row['customer_id'] as int,
+            ad_id: row['Ad_id'] as int,
+            price: row['price'] as double));
+  }
+
+  @override
+  Future<List<Book?>> findAdByCustomerId(int id) async {
+    return _queryAdapter.queryList('SELECT * FROM book WHERE customer_id = ?1',
+        mapper: (Map<String, Object?> row) => Book(
+            id: row['id'] as int?,
+            start_date: row['start_date'] as String,
+            end_date: row['end_date'] as String,
+            user_id: row['customer_id'] as int,
+            ad_id: row['Ad_id'] as int,
+            price: row['price'] as double),
+        arguments: [id]);
+  }
+
+  @override
+  Future<List<Book?>> findAdByAdId(int id) async {
+    return _queryAdapter.queryList('SELECT * FROM book WHERE Ad_id = ?1',
+        mapper: (Map<String, Object?> row) => Book(
+            id: row['id'] as int?,
+            start_date: row['start_date'] as String,
+            end_date: row['end_date'] as String,
+            user_id: row['customer_id'] as int,
+            ad_id: row['Ad_id'] as int,
+            price: row['price'] as double),
+        arguments: [id]);
+  }
+
+  @override
+  Stream<Book?> findBookbyId(int id) {
+    return _queryAdapter.queryStream('SELECT * FROM book WHERE id = ?1',
+        mapper: (Map<String, Object?> row) => Book(
+            id: row['id'] as int?,
+            start_date: row['start_date'] as String,
+            end_date: row['end_date'] as String,
+            user_id: row['customer_id'] as int,
+            ad_id: row['Ad_id'] as int,
+            price: row['price'] as double),
+        arguments: [id],
+        queryableName: 'book',
+        isView: false);
+  }
+
+  @override
+  Future<void> insertBook(Book trans) async {
+    await _bookInsertionAdapter.insert(trans, OnConflictStrategy.abort);
+  }
+}
+
+class _$FavoriteDao extends FavoriteDao {
+  _$FavoriteDao(
+    this.database,
+    this.changeListener,
+  )   : _queryAdapter = QueryAdapter(database, changeListener),
+        _favoriteInsertionAdapter = InsertionAdapter(
+            database,
+            'favorites',
+            (Favorite item) => <String, Object?>{
+                  'id': item.id,
+                  'customer_id': item.user_id,
+                  'Ad_id': item.ad_id
+                },
+            changeListener),
+        _favoriteDeletionAdapter = DeletionAdapter(
+            database,
+            'favorites',
+            ['id'],
+            (Favorite item) => <String, Object?>{
+                  'id': item.id,
+                  'customer_id': item.user_id,
+                  'Ad_id': item.ad_id
+                },
+            changeListener);
+
+  final sqflite.DatabaseExecutor database;
+
+  final StreamController<String> changeListener;
+
+  final QueryAdapter _queryAdapter;
+
+  final InsertionAdapter<Favorite> _favoriteInsertionAdapter;
+
+  final DeletionAdapter<Favorite> _favoriteDeletionAdapter;
+
+  @override
+  Future<List<Favorite>> findAllAds() async {
+    return _queryAdapter.queryList('SELECT * FROM favorites',
+        mapper: (Map<String, Object?> row) => Favorite(
+            id: row['id'] as int?,
+            user_id: row['customer_id'] as int,
+            ad_id: row['Ad_id'] as int));
+  }
+
+  @override
+  Future<List<Favorite?>> findAdByAdId(int id) async {
+    return _queryAdapter.queryList('SELECT * FROM favorites WHERE Ad_id = ?1',
+        mapper: (Map<String, Object?> row) => Favorite(
+            id: row['id'] as int?,
+            user_id: row['customer_id'] as int,
+            ad_id: row['Ad_id'] as int),
+        arguments: [id]);
+  }
+
+  @override
+  Future<List<Favorite?>> findAdByUserId(int id) async {
+    return _queryAdapter.queryList(
+        'SELECT * FROM favorites WHERE customer_id = ?1',
+        mapper: (Map<String, Object?> row) => Favorite(
+            id: row['id'] as int?,
+            user_id: row['customer_id'] as int,
+            ad_id: row['Ad_id'] as int),
+        arguments: [id]);
+  }
+
+  @override
+  Stream<Favorite?> findAdById(int id) {
+    return _queryAdapter.queryStream('SELECT * FROM favorites WHERE id = ?1',
+        mapper: (Map<String, Object?> row) => Favorite(
+            id: row['id'] as int?,
+            user_id: row['customer_id'] as int,
+            ad_id: row['Ad_id'] as int),
+        arguments: [id],
+        queryableName: 'favorites',
+        isView: false);
+  }
+
+  @override
+  Future<List<Ads?>> findFavAdByUserID(int id) async {
+    return _queryAdapter.queryList(
+        'SELECT ads.id,ads.owner_id,price,ads.number_of_rooms,ads.phone_number,ads.link,ads.desc,ads.title,ads.type,ads.location FROM ads, favorites WHERE favorites.customer_id  = ?1 and ads.id = favorites.ad_id',
+        mapper: (Map<String, Object?> row) => Ads(id: row['id'] as int?, user_id: row['owner_id'] as int, link: row['link'] as String, desc: row['desc'] as String, title: row['title'] as String, price: row['price'] as int, number_of_rooms: row['number_of_rooms'] as int, type: row['type'] as String, location: row['location'] as String, phone_number: row['phone_number'] as int),
+        arguments: [id]);
+  }
+
+  @override
+  Future<void> insertAd(Favorite ad) async {
+    await _favoriteInsertionAdapter.insert(ad, OnConflictStrategy.abort);
+  }
+
+  @override
+  Future<void> deleteFavAd(Favorite ad) async {
+    await _favoriteDeletionAdapter.delete(ad);
   }
 }

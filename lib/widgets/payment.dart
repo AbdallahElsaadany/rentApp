@@ -2,12 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
 import '../Classes/adclass.dart';
+import '../Classes/bookingclass.dart';
 import '../main.dart';
 import 'adviewer.dart';
 
 class payment extends StatefulWidget {
   final int id,booked_number;
-  const payment({Key? key,required this.id, required this.booked_number}) : super(key: key);
+  final Book tmp;
+  const payment(this.id,this.booked_number,this.tmp,{Key? key}) : super(key: key);
 
   @override
   State<payment> createState() => _paymentState();
@@ -143,9 +145,9 @@ class _paymentState extends State<payment> {
         color: Colors.black54,
         child: InkWell(
           onTap: () async {
-            ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Room booked successfully")));
             int tmp = number_rooms - widget.booked_number;
-            print(tmp);
+            final bookDao = database.bookDao;
+            await bookDao.insertBook(widget.tmp);
             await adDao.updateAd(widget.id,photo_link,description,title,tmp,price,type,location,phone_number);
             Navigator.pop(context);
             Navigator.pop(context);
@@ -154,6 +156,8 @@ class _paymentState extends State<payment> {
               context,
               MaterialPageRoute(builder: (context) => adViewer(widget.id)),
             );
+            ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Room booked successfully")));
+
           },
           child: const SizedBox(
             height: kToolbarHeight,

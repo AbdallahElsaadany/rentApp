@@ -162,6 +162,13 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "1.3.1"
+  favorite_button:
+    dependency: "direct main"
+    description:
+      name: favorite_button
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "0.0.4"
   ffi:
     dependency: transitive
     description:
@@ -189,21 +196,21 @@ packages:
       name: floor
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "1.4.0"
+    version: "1.4.1"
   floor_annotation:
     dependency: transitive
     description:
       name: floor_annotation
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "1.4.0"
+    version: "1.4.1"
   floor_generator:
     dependency: "direct dev"
     description:
       name: floor_generator
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "1.4.0"
+    version: "1.4.1"
   flutter:
     dependency: "direct main"
     description: flutter
@@ -271,7 +278,7 @@ packages:
     source: hosted
     version: "4.0.2"
   intl:
-    dependency: "direct dev"
+    dependency: "direct main"
     description:
       name: intl
       url: "https://pub.dartlang.org"
