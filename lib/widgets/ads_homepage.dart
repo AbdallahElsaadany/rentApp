@@ -21,6 +21,9 @@ class adsHomePage extends StatefulWidget {
 class _adsHomePageState extends State<adsHomePage> {
   int selectedTap = 0;
   String search = '';
+  String? fname = loggedUser?.fName;
+  String? lname = loggedUser?.lName;
+  late String username = fname!+lname!;
   var userID = loggedUser?.id?.toInt() ?? 0;
   Future<List<Ads>> retrieveAds() async {
     return await database.adDao.findAllAds();
@@ -233,7 +236,100 @@ class _adsHomePageState extends State<adsHomePage> {
                 }
               },
             ),
-          )
+          ),
+          Offstage(offstage: selectedTap != 3,
+            child: Scaffold(
+              appBar: AppBar(
+                elevation: 0.0,
+                backgroundColor: Color(0xff555555),
+                leading: IconButton(
+                  icon: Icon(
+                    Icons.arrow_back,
+                    color: Colors.white,
+                  ),
+                  onPressed: () {},
+                ),
+              ),
+              body: Stack(
+                alignment: Alignment.center,
+                children: [
+                  Column(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: [
+                      Container(
+                        height: 450,
+                        width: double.infinity,
+                        margin: EdgeInsets.symmetric(horizontal: 10),
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                          children: [
+                            textfield(
+                              hintText: username,
+                            ),
+                            textfield(
+                              hintText: loggedUser?.eMail,
+                            ),
+                            Material(
+                              borderRadius: BorderRadius.circular(18.0),
+                              color: Colors.black54,
+                              child: InkWell(
+                                onTap: () {
+                                },
+                                child: const SizedBox(
+                                  height: kToolbarHeight,
+                                  width: double.infinity,
+                                  child: Center(
+                                    child: Text(
+                                      'History',
+                                      style: TextStyle(
+                                          fontWeight: FontWeight.bold,
+                                          color: Colors.white
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ),
+
+                          ],
+
+                        ),
+                      )
+                    ],
+                  ),
+
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: const [
+                      Padding(
+                        padding: EdgeInsets.all(20),
+                        child: Text(
+                          "Profile",
+                          style: TextStyle(
+                            fontSize: 35,
+                            letterSpacing: 1.5,
+                            color: Colors.black,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.all(8.0),
+
+                        child: Icon(
+                          Icons.person,
+                          size: 150,
+                        ),
+
+                      ),
+
+                    ],
+                  ),
+
+                ],
+              ),
+            )
+          ),
         ],
       ),
       floatingActionButton: FloatingActionButton(
@@ -249,4 +345,29 @@ class _adsHomePageState extends State<adsHomePage> {
       ),
     );
   }
+}
+
+Widget textfield({@required hintText}) {
+  return Material(
+    elevation: 4,
+    shadowColor: Colors.grey,
+    shape: RoundedRectangleBorder(
+      borderRadius: BorderRadius.circular(10),
+    ),
+    child: TextField(
+      decoration: InputDecoration(
+          hintText: hintText,
+          enabled: false,
+          hintStyle: TextStyle(
+            letterSpacing: 2,
+            color: Colors.black54,
+            fontWeight: FontWeight.bold,
+          ),
+          fillColor: Colors.white30,
+          filled: true,
+          border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(10.0),
+              borderSide: BorderSide.none)),
+    ),
+  );
 }
