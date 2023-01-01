@@ -93,7 +93,7 @@ class _$AppDatabase extends AppDatabase {
         await database.execute(
             'CREATE TABLE IF NOT EXISTS `users` (`id` INTEGER PRIMARY KEY AUTOINCREMENT, `fName` TEXT NOT NULL, `lName` TEXT NOT NULL, `eMail` TEXT NOT NULL, `password` TEXT NOT NULL)');
         await database.execute(
-            'CREATE TABLE IF NOT EXISTS `ads` (`id` INTEGER PRIMARY KEY AUTOINCREMENT, `owner_id` INTEGER NOT NULL, `price` INTEGER NOT NULL, `number_of_rooms` INTEGER NOT NULL, `phone_number` INTEGER NOT NULL, `link` TEXT NOT NULL, `desc` TEXT NOT NULL, `title` TEXT NOT NULL, `type` TEXT NOT NULL, `location` TEXT NOT NULL, FOREIGN KEY (`owner_id`) REFERENCES `users` (`id`) ON UPDATE NO ACTION ON DELETE NO ACTION)');
+            'CREATE TABLE IF NOT EXISTS `ads` (`id` INTEGER PRIMARY KEY AUTOINCREMENT, `owner_id` INTEGER NOT NULL, `price` INTEGER NOT NULL, `number_of_rooms` INTEGER NOT NULL, `phone_number` INTEGER NOT NULL, `link` TEXT NOT NULL, `desc` TEXT NOT NULL, `title` TEXT NOT NULL, `type` TEXT NOT NULL, `location` TEXT NOT NULL, FOREIGN KEY (`owner_id`) REFERENCES `users` (`id`) ON UPDATE CASCADE ON DELETE CASCADE)');
         await database.execute(
             'CREATE TABLE IF NOT EXISTS `book` (`id` INTEGER PRIMARY KEY AUTOINCREMENT, `start_date` TEXT NOT NULL, `end_date` TEXT NOT NULL, `price` REAL NOT NULL, `customer_id` INTEGER NOT NULL, `Ad_id` INTEGER NOT NULL, FOREIGN KEY (`Ad_id`) REFERENCES `ads` (`id`) ON UPDATE NO ACTION ON DELETE NO ACTION, FOREIGN KEY (`customer_id`) REFERENCES `users` (`id`) ON UPDATE NO ACTION ON DELETE NO ACTION)');
         await database.execute(

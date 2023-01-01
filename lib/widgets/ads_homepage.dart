@@ -79,7 +79,6 @@ class _adsHomePageState extends State<adsHomePage> {
         ),
       backgroundColor: Color(0xffdfe6e9),
       body: Stack(
-
         children: [
           Offstage(
             offstage: selectedTap != 0,
@@ -87,53 +86,72 @@ class _adsHomePageState extends State<adsHomePage> {
               future: retrieveAds(),
               builder: (BuildContext context, AsyncSnapshot<List<Ads>> snapshot) {
                 if (snapshot.hasData) {
-                  return ListView.builder(
-                    itemCount: snapshot.data?.length,
+                  return ListView.separated(
+                    padding: const EdgeInsets.only(left: 10,right: 10,top: 60),
+                    itemCount: snapshot.data!.length,
                     itemBuilder: (BuildContext context, int index) {
                       return GestureDetector(
                           onTap: () => Navigator.push(
                             context,
                             MaterialPageRoute(builder: (context) => adViewer(snapshot.data![index]!.id!)),
                           ),
-                          child: Card(
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(15.0),
-                              ),
-                              color: Colors.grey,
-                              elevation: 10,
-                              child: SizedBox(
-                                width: MediaQuery.of(context).size.width,
-                                child: Row(
-                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                  children: [
-                                    Column(
-                                      children: [
-                                        Text("      " +snapshot.data![index].title, style: TextStyle(fontSize: 22)),
-                                        FavoriteButton(
-                                          valueChanged: (_isFavorite) async {
-                                            if(_isFavorite){
-                                              var userID = loggedUser?.id?.toInt() ?? 0;
-                                              Favorite fav = Favorite(user_id: userID,ad_id: snapshot.data![index]!.id!);
-                                              await database.favoritDao.insertAd(fav);
-                                            }else{
-                                              var result = await database.favoritDao.findAdById(snapshot.data![index]!.id!).first;
-                                              await database.favoritDao.deleteFavAd(result);
-                                            }
-                                          },
-                                        )
-                                      ],
-                                    ),
-                                    Image.network(snapshot.data![index].link,width: 200,height: 100,
-                                      loadingBuilder: (context,child,progress){
-                                        return progress == null ? child : LinearProgressIndicator();
-                                      },
-                                    )
-                                  ],
+                          child: Container(
+                            width: 100,
+                            height: 100,
+                            decoration: BoxDecoration(
+                              color: Colors.black26,
+                              borderRadius: BorderRadius.circular(20),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Colors.white10,
+                                  blurRadius: 4,
+                                  offset: Offset(4, 8), // Shadow position
                                 ),
-                              )
+                              ],
+                            ),
+                            child: Card(
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(15.0),
+                                ),
+                                color: Colors.transparent,
+                                elevation: 10,
+                                child: SizedBox(
+                                  width: MediaQuery.of(context).size.width,
+                                  child: Row(
+                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      Column(
+                                        children: [
+                                          Text("\n" +snapshot.data![index].title, style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold)),
+                                          FavoriteButton(
+                                            valueChanged: (_isFavorite) async {
+                                              if(_isFavorite){
+                                                var userID = loggedUser?.id?.toInt() ?? 0;
+                                                Favorite fav = Favorite(user_id: userID,ad_id: snapshot.data![index]!.id!);
+                                                await database.favoritDao.insertAd(fav);
+                                              }else{
+                                                var result = await database.favoritDao.findAdById(snapshot.data![index]!.id!).first;
+                                                await database.favoritDao.deleteFavAd(result);
+                                              }
+                                            },
+                                          )
+                                        ],
+                                      ),
+                                      Image.network(snapshot.data![index].link,width: 200,height: 100,
+                                        loadingBuilder: (context,child,progress){
+                                          return progress == null ? child : LinearProgressIndicator();
+                                        },
+                                      )
+                                    ],
+                                  ),
+                                )
+                            ),
                           ),
                         );
-                    },
+                    }, separatorBuilder: (context, index) => SizedBox(
+                    height: 10,
+                  )
+
                   );
                 } else {
                   return Center(child: CircularProgressIndicator());
@@ -239,17 +257,6 @@ class _adsHomePageState extends State<adsHomePage> {
           ),
           Offstage(offstage: selectedTap != 3,
             child: Scaffold(
-              appBar: AppBar(
-                elevation: 0.0,
-                backgroundColor: Color(0xff555555),
-                leading: IconButton(
-                  icon: Icon(
-                    Icons.arrow_back,
-                    color: Colors.white,
-                  ),
-                  onPressed: () {},
-                ),
-              ),
               body: Stack(
                 alignment: Alignment.center,
                 children: [

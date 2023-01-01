@@ -124,6 +124,7 @@ class _SignUpState extends State<SignUp> {
           if(formKey.currentState !.validate() && result?.eMail==null){
             await userDao.insertUser(tmp);
             ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Sign up success")));
+            Navigator.pop(context);
           }else{
             ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Sign up failed")));
           }

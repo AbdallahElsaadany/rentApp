@@ -134,8 +134,9 @@ class _adViewerState extends State<adViewer> {
         ),
       ) ,
       bottomNavigationBar: Material(
+
         borderRadius: BorderRadius.circular(18.0),
-        color: Colors.black54,
+        color: Colors.black,
         child: InkWell(
           onTap: () {
             Navigator.push(

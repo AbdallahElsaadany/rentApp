@@ -8,6 +8,8 @@ import 'package:rent_app/Classes/user.dart';
       childColumns: ['owner_id'],
       parentColumns: ['id'],
       entity: User,
+      onUpdate: ForeignKeyAction.cascade,
+      onDelete: ForeignKeyAction.cascade,
     )
   ],
 )
