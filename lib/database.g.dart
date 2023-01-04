@@ -69,6 +69,12 @@ class _$AppDatabase extends AppDatabase {
 
   FavoriteDao? _favoritDaoInstance;
 
+  CreaditCardDao? _creaditCardDaoInstance;
+
+  CustomerDao? _customerDaoInstance;
+
+  CustomerSupportDao? _customerSupportDaoInstance;
+
   Future<sqflite.Database> open(
     String path,
     List<Migration> migrations, [
@@ -91,13 +97,19 @@ class _$AppDatabase extends AppDatabase {
       },
       onCreate: (database, version) async {
         await database.execute(
-            'CREATE TABLE IF NOT EXISTS `users` (`id` INTEGER PRIMARY KEY AUTOINCREMENT, `fName` TEXT NOT NULL, `lName` TEXT NOT NULL, `eMail` TEXT NOT NULL, `password` TEXT NOT NULL)');
+            'CREATE TABLE IF NOT EXISTS `HouseOwner` (`id` INTEGER PRIMARY KEY AUTOINCREMENT, `fName` TEXT NOT NULL, `lName` TEXT NOT NULL, `eMail` TEXT NOT NULL, `password` TEXT NOT NULL)');
         await database.execute(
-            'CREATE TABLE IF NOT EXISTS `ads` (`id` INTEGER PRIMARY KEY AUTOINCREMENT, `owner_id` INTEGER NOT NULL, `price` INTEGER NOT NULL, `number_of_rooms` INTEGER NOT NULL, `phone_number` INTEGER NOT NULL, `link` TEXT NOT NULL, `desc` TEXT NOT NULL, `title` TEXT NOT NULL, `type` TEXT NOT NULL, `location` TEXT NOT NULL, FOREIGN KEY (`owner_id`) REFERENCES `users` (`id`) ON UPDATE CASCADE ON DELETE CASCADE)');
+            'CREATE TABLE IF NOT EXISTS `ads` (`id` INTEGER PRIMARY KEY AUTOINCREMENT, `owner_id` INTEGER NOT NULL, `price` INTEGER NOT NULL, `number_of_rooms` INTEGER NOT NULL, `phone_number` INTEGER NOT NULL, `link` TEXT NOT NULL, `desc` TEXT NOT NULL, `title` TEXT NOT NULL, `type` TEXT NOT NULL, `location` TEXT NOT NULL, FOREIGN KEY (`owner_id`) REFERENCES `HouseOwner` (`id`) ON UPDATE CASCADE ON DELETE CASCADE)');
         await database.execute(
-            'CREATE TABLE IF NOT EXISTS `book` (`id` INTEGER PRIMARY KEY AUTOINCREMENT, `start_date` TEXT NOT NULL, `end_date` TEXT NOT NULL, `price` REAL NOT NULL, `customer_id` INTEGER NOT NULL, `Ad_id` INTEGER NOT NULL, FOREIGN KEY (`Ad_id`) REFERENCES `ads` (`id`) ON UPDATE NO ACTION ON DELETE NO ACTION, FOREIGN KEY (`customer_id`) REFERENCES `users` (`id`) ON UPDATE NO ACTION ON DELETE NO ACTION)');
+            'CREATE TABLE IF NOT EXISTS `book` (`id` INTEGER PRIMARY KEY AUTOINCREMENT, `start_date` TEXT NOT NULL, `end_date` TEXT NOT NULL, `price` REAL NOT NULL, `customer_id` INTEGER NOT NULL, `Ad_id` INTEGER NOT NULL, FOREIGN KEY (`Ad_id`) REFERENCES `ads` (`id`) ON UPDATE NO ACTION ON DELETE NO ACTION, FOREIGN KEY (`customer_id`) REFERENCES `HouseOwner` (`id`) ON UPDATE NO ACTION ON DELETE NO ACTION)');
         await database.execute(
-            'CREATE TABLE IF NOT EXISTS `favorites` (`id` INTEGER PRIMARY KEY AUTOINCREMENT, `customer_id` INTEGER NOT NULL, `Ad_id` INTEGER NOT NULL, FOREIGN KEY (`Ad_id`) REFERENCES `ads` (`id`) ON UPDATE NO ACTION ON DELETE NO ACTION, FOREIGN KEY (`customer_id`) REFERENCES `users` (`id`) ON UPDATE NO ACTION ON DELETE NO ACTION)');
+            'CREATE TABLE IF NOT EXISTS `favorites` (`id` INTEGER PRIMARY KEY AUTOINCREMENT, `customer_id` INTEGER NOT NULL, `Ad_id` INTEGER NOT NULL, FOREIGN KEY (`Ad_id`) REFERENCES `ads` (`id`) ON UPDATE NO ACTION ON DELETE NO ACTION, FOREIGN KEY (`customer_id`) REFERENCES `HouseOwner` (`id`) ON UPDATE NO ACTION ON DELETE NO ACTION)');
+        await database.execute(
+            'CREATE TABLE IF NOT EXISTS `customer` (`id` INTEGER PRIMARY KEY AUTOINCREMENT, `fName` TEXT NOT NULL, `lName` TEXT NOT NULL, `eMail` TEXT NOT NULL, `password` TEXT NOT NULL)');
+        await database.execute(
+            'CREATE TABLE IF NOT EXISTS `creaditCard` (`id` INTEGER PRIMARY KEY AUTOINCREMENT, `customer_id` INTEGER NOT NULL, `description` TEXT NOT NULL, `questiontitle` TEXT NOT NULL, FOREIGN KEY (`customer_id`) REFERENCES `HouseOwner` (`id`) ON UPDATE CASCADE ON DELETE CASCADE)');
+        await database.execute(
+            'CREATE TABLE IF NOT EXISTS `customer_support` (`id` INTEGER PRIMARY KEY AUTOINCREMENT, `customer_id` INTEGER NOT NULL, `Question_title` TEXT NOT NULL, `Description` TEXT NOT NULL, FOREIGN KEY (`customer_id`) REFERENCES `HouseOwner` (`id`) ON UPDATE CASCADE ON DELETE CASCADE)');
 
         await callback?.onCreate?.call(database, version);
       },
@@ -124,6 +136,23 @@ class _$AppDatabase extends AppDatabase {
   FavoriteDao get favoritDao {
     return _favoritDaoInstance ??= _$FavoriteDao(database, changeListener);
   }
+
+  @override
+  CreaditCardDao get creaditCardDao {
+    return _creaditCardDaoInstance ??=
+        _$CreaditCardDao(database, changeListener);
+  }
+
+  @override
+  CustomerDao get customerDao {
+    return _customerDaoInstance ??= _$CustomerDao(database, changeListener);
+  }
+
+  @override
+  CustomerSupportDao get customerSupportDao {
+    return _customerSupportDaoInstance ??=
+        _$CustomerSupportDao(database, changeListener);
+  }
 }
 
 class _$UserDao extends UserDao {
@@ -133,7 +162,7 @@ class _$UserDao extends UserDao {
   )   : _queryAdapter = QueryAdapter(database, changeListener),
         _userInsertionAdapter = InsertionAdapter(
             database,
-            'users',
+            'HouseOwner',
             (User item) => <String, Object?>{
                   'id': item.id,
                   'fName': item.fName,
@@ -153,7 +182,7 @@ class _$UserDao extends UserDao {
 
   @override
   Future<List<User>> findAllUsers() async {
-    return _queryAdapter.queryList('SELECT * FROM users',
+    return _queryAdapter.queryList('SELECT * FROM HouseOwner',
         mapper: (Map<String, Object?> row) => User(
             id: row['id'] as int?,
             fName: row['fName'] as String,
@@ -164,7 +193,8 @@ class _$UserDao extends UserDao {
 
   @override
   Stream<User?> findUserByEmail(String eMail) {
-    return _queryAdapter.queryStream('SELECT * FROM users WHERE eMail = ?1',
+    return _queryAdapter.queryStream(
+        'SELECT * FROM HouseOwner WHERE eMail = ?1',
         mapper: (Map<String, Object?> row) => User(
             id: row['id'] as int?,
             fName: row['fName'] as String,
@@ -172,7 +202,7 @@ class _$UserDao extends UserDao {
             eMail: row['eMail'] as String,
             password: row['password'] as String),
         arguments: [eMail],
-        queryableName: 'users',
+        queryableName: 'HouseOwner',
         isView: false);
   }
 
@@ -492,5 +522,141 @@ class _$FavoriteDao extends FavoriteDao {
   @override
   Future<void> deleteFavAd(Favorite ad) async {
     await _favoriteDeletionAdapter.delete(ad);
+  }
+}
+
+class _$CreaditCardDao extends CreaditCardDao {
+  _$CreaditCardDao(
+    this.database,
+    this.changeListener,
+  )   : _queryAdapter = QueryAdapter(database),
+        _creaditCardInsertionAdapter = InsertionAdapter(
+            database,
+            'creaditCard',
+            (CreaditCard item) => <String, Object?>{
+                  'id': item.id,
+                  'customer_id': item.user_id,
+                  'description': item.description,
+                  'questiontitle': item.questiontitle
+                });
+
+  final sqflite.DatabaseExecutor database;
+
+  final StreamController<String> changeListener;
+
+  final QueryAdapter _queryAdapter;
+
+  final InsertionAdapter<CreaditCard> _creaditCardInsertionAdapter;
+
+  @override
+  Future<List<CreaditCard>> findAllUsers() async {
+    return _queryAdapter.queryList('SELECT * FROM Customer',
+        mapper: (Map<String, Object?> row) => CreaditCard(
+            id: row['id'] as int?,
+            user_id: row['customer_id'] as int,
+            description: row['description'] as String,
+            questiontitle: row['questiontitle'] as String));
+  }
+
+  @override
+  Future<void> insertUser(CreaditCard user) async {
+    await _creaditCardInsertionAdapter.insert(user, OnConflictStrategy.abort);
+  }
+}
+
+class _$CustomerDao extends CustomerDao {
+  _$CustomerDao(
+    this.database,
+    this.changeListener,
+  )   : _queryAdapter = QueryAdapter(database, changeListener),
+        _userInsertionAdapter = InsertionAdapter(
+            database,
+            'HouseOwner',
+            (User item) => <String, Object?>{
+                  'id': item.id,
+                  'fName': item.fName,
+                  'lName': item.lName,
+                  'eMail': item.eMail,
+                  'password': item.password
+                },
+            changeListener);
+
+  final sqflite.DatabaseExecutor database;
+
+  final StreamController<String> changeListener;
+
+  final QueryAdapter _queryAdapter;
+
+  final InsertionAdapter<User> _userInsertionAdapter;
+
+  @override
+  Future<List<User>> findAllUsers() async {
+    return _queryAdapter.queryList('SELECT * FROM Customer',
+        mapper: (Map<String, Object?> row) => User(
+            id: row['id'] as int?,
+            fName: row['fName'] as String,
+            lName: row['lName'] as String,
+            eMail: row['eMail'] as String,
+            password: row['password'] as String));
+  }
+
+  @override
+  Stream<User?> findUserByEmail(String eMail) {
+    return _queryAdapter.queryStream('SELECT * FROM Customer WHERE eMail = ?1',
+        mapper: (Map<String, Object?> row) => User(
+            id: row['id'] as int?,
+            fName: row['fName'] as String,
+            lName: row['lName'] as String,
+            eMail: row['eMail'] as String,
+            password: row['password'] as String),
+        arguments: [eMail],
+        queryableName: 'Customer',
+        isView: false);
+  }
+
+  @override
+  Future<void> insertUser(User user) async {
+    await _userInsertionAdapter.insert(user, OnConflictStrategy.abort);
+  }
+}
+
+class _$CustomerSupportDao extends CustomerSupportDao {
+  _$CustomerSupportDao(
+    this.database,
+    this.changeListener,
+  )   : _queryAdapter = QueryAdapter(database),
+        _customerSupportClassInsertionAdapter = InsertionAdapter(
+            database,
+            'customer_support',
+            (CustomerSupportClass item) => <String, Object?>{
+                  'id': item.id,
+                  'customer_id': item.user_id,
+                  'Question_title': item.Question_title,
+                  'Description': item.Description
+                });
+
+  final sqflite.DatabaseExecutor database;
+
+  final StreamController<String> changeListener;
+
+  final QueryAdapter _queryAdapter;
+
+  final InsertionAdapter<CustomerSupportClass>
+      _customerSupportClassInsertionAdapter;
+
+  @override
+  Future<List<CustomerSupportClass>> findAllUsers() async {
+    return _queryAdapter.queryList('SELECT * FROM customer_support',
+        mapper: (Map<String, Object?> row) => CustomerSupportClass(
+            id: row['id'] as int?,
+            Question_title: row['Question_title'] as String,
+            Description: row['Description'] as String,
+            user_id: row['customer_id'] as int));
+  }
+
+  @override
+  Future<void> insertUser(CustomerSupportClass user) async {
+    await _customerSupportClassInsertionAdapter.insert(
+        user, OnConflictStrategy.abort);
   }
 }

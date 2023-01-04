@@ -304,7 +304,6 @@ class _adsHomePageState extends State<adsHomePage> {
                       )
                     ],
                   ),
-
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: const [
